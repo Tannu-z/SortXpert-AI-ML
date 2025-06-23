@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SortXpert - Smart Waste Segregation</title>
+    <script src="https://unpkg.com/@tailwindcss/browser@4"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        .active-image {
+            border: 4px solid #F43F5E;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+        .image-option {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.5s ease-in-out, z-index 0s, opacity 0.3s;
+            cursor: pointer;
+            border-radius: 10px;
+            transform-origin: center;
+            backface-visibility: hidden;
+        }
+        .image-option:hover {
+            transform: scale(1.1);
+            box-shadow: 0 10px 20px -5px rgba(0, 0, 0, 0.3);
+            z-index: 5 !important;
+        }
+        .upload-button {
+            background-image: linear-gradient(to right, #4A55A2, #7479B9);
+            transition: all 0.3s ease-in-out;
+            box-shadow: 0px 8px 15px rgba(0, 0, 0, 0.1);
+            border-radius: 10px;
+        }
+        .upload-button:hover {
+            background-image: linear-gradient(to right, #7479B9, #4A55A2);
+            transform: translateY(-2px);
+            box-shadow: 0px 15px 20px rgba(0, 0, 0, 0.2);
+        }
+        .nav-link:hover {
+            color: white;
+            transform: translateY(-2px);
+            transition: all 0.2s ease-in-out;
+        }
+        #image-container {
+            width: 400px;
+            height: 300px;
+            position: relative;
+            perspective: 800px;
+        }
+        .section-title{
+            font-size: 2.5rem;
+            font-weight: 600;
+            margin-bottom: 2rem;
+            text-align: center;
+            color: #4A55A2;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+        }
+        .feature-item{
+             background-color: rgba(255, 255, 255, 0.06);
+            padding: 2rem;
+            border-radius: 1rem;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .feature-item:hover{
+            transform: translateY(-10px) scale(1.03);
+            box-shadow: 0 6px 18px rgba(0, 0, 0, 0.15);
+             background-color: rgba(255, 255, 255, 0.1);
+        }
+        .feature-item h3{
+            font-size: 1.5rem;
+            color: #fff;
+            margin-bottom: 1rem;
+            font-weight: 600;
+        }
+        .feature-item p{
+            color: #ddd;
+            font-size: 1.1rem;
+            line-height: 1.7;
+            margin-bottom: 1rem;
+
+        }
+        .feature-item span{
+            display: block;
+            font-size: 1.2rem;
+            color: #4A55A2;
+            font-weight: 700;
+        }
+        .contact-form{
+             background-color: rgba(255, 255, 255, 0.06);
+            padding: 2rem;
+            border-radius: 1rem;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .contact-form:hover {
+            transform: translateY(-10px) scale(1.03);
+            box-shadow: 0 6px 18px rgba(0, 0, 0, 0.15);
+             background-color: rgba(255, 255, 255, 0.1);
+        }
+
+        .contact-form h2{
+            font-size: 2rem;
+            color: #fff;
+            margin-bottom: 2rem;
+            font-weight: 600;
+            text-align: center;
+        }
+        .form-group{
+            margin-bottom: 1.5rem;
+        }
+        .form-group label{
+            display: block;
+            color: #eee;
+            margin-bottom: 0.5rem;
+            font-size: 1.1rem;
+            font-weight: 600;
+        }
+        .form-control{
+            width: 100%;
+            padding: 1rem;
+            border-radius: 0.75rem;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            background-color: rgba(255, 255, 255, 0.03);
+            color: #fff;
+            font-size: 1.1rem;
+            transition: all 0.3s ease;
+        }
+        .form-control:focus{
+            outline: none;
+            border-color: #4A55A2;
+            box-shadow: 0 0 0 3px rgba(74, 85, 162, 0.15);
+             background-color: rgba(255, 255, 255, 0.06);
+        }
+        textarea.form-control{
+            height: auto;
+            resize: vertical;
+        }
+        .btn-primary{
+             background-image: linear-gradient(to right, #4A55A2, #7479B9);
+            transition: all 0.3s ease-in-out;
+            box-shadow: 0px 8px 15px rgba(0, 0, 0, 0.1);
+            border-radius: 0.75rem;
+            padding: 1rem 2rem;
+            font-size: 1.2rem;
+            color: #fff;
+            border: none;
+            cursor: pointer;
+        }
+        .btn-primary:hover {
+            background-image: linear-gradient(to right, #7479B9, #4A55A2);
+            transform: translateY(-2px);
+            box-shadow: 0px 15px 20px rgba(0, 0, 0, 0.2);
+        }
+        .footer{
+            background-color: #1A202C;
+            padding: 3rem 0;
+            text-align: center;
+            margin-top: 5rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.08);
+        }
+        .footer p{
+            color: #CBD5E0;
+            font-size: 1.1rem;
+        }
+        .footer-social{
+            margin-top: 1rem;
+        }
+        .footer-social a{
+            display: inline-block;
+            margin: 0 1rem;
+            font-size: 1.5rem;
+            color: #B2B7FF;
+            transition: color 0.3s ease;
+        }
+        .footer-social a:hover{
+            color: #7479B9;
+        }
+    </style>
+</head>
+<body class="bg-[#2D3748] text-white flex flex-col">
+    <header class="bg-gray-800 bg-opacity-90 backdrop-blur-md py-4 px-6 sticky top-0 z-10 rounded-md shadow-md">
+        <div class="container mx-auto flex justify-between items-center">
+            <div class="text-xl font-semibold text-white">SortXpert</div>
+            <div class="flex gap-4">
+                <a href="/BackEnd/login.html" class="text-gray-300 hover:text-white transition duration-300 nav-link">Log In</a>
+                <a href="registration.html" class="text-gray-300 hover:text-white transition duration-300 nav-link">Sign Up</a>
+                <a href="contact.html" class="text-gray-300 hover:text-white transition duration-300 nav-link">Contact Us</a>
+            </div>
+        </div>
+    </header>
+
+    <main class="flex-grow">
+        <section class="container mx-auto p-4 md:p-8">
+            <div class="flex flex-col md:flex-row gap-6">
+                <div class="md:w-1/2">
+                    <h2 class="text-3xl font-bold text-white mb-4">Garbage got you down? <br><br> We've got the tech to pick you up!</h2>
+                    <p class="mt-4 text-gray-300 text-sm" style="font-size: 1.2rem; line-height: 1.7;">
+                        Every piece of waste deserves a second thought before disposal. <br>Our AI-driven waste segregation system ensures that non-biodegradable materials are detected, classified, and managed with precision—<br>because a cleaner world starts with smarter decisions.
+                    </p>
+                 <a href="registration.html" >  <button class="mt-6 text-white font-semibold py-2.5 px-5 rounded-lg transition duration-300 ease-in-out upload-button">
+                        Explore More 
+                    </button></a>
+                </div>
+
+                <div class="md:w-1/2 relative" style="margin-top: 0; margin-left: auto;">
+                    <div id="image-container" class="relative">
+                        <img id="img1" src="img1.jpg" alt="Waste 1" class="image-option" style="z-index: 4; transform: translateX(50px) translateY(30px) rotate(10deg);">
+                        <img id="img2" src="img3.jpg" alt="Waste 2" class="image-option" style="z-index: 3; transform: translateX(-50px) translateY(30px) rotate(-10deg); opacity: 1;">
+                        <img id="img3" src="img3.jpg" alt="Waste 3" class="image-option" style="z-index: 2; opacity: 0; transform: translateX(0px) translateY(0px) rotate(0deg);">
+                        <img id="img4" src="img4.jpg" alt="Waste 4" class="image-option" style="z-index: 1; transform: translateX(-50px) translateY(30px) rotate(-10deg); opacity: 0;">
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="bg-[#2D3748] py-16">
+            <div class="container mx-auto px-4 md:px-8">
+                <h2 class="section-title">Key Features</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                    <div class="feature-item">
+                        <h3>AI-Powered Detection</h3>
+                        <p>Advanced AI algorithms accurately identify plastic wrappers and sharp objects in uploaded images.</p>
+                    </div>
+                    <div class="feature-item">
+                        <h3>Image-Based Analysis</h3>
+                        <p>Eliminates the need for expensive and complex sensor-based systems by using image analysis.</p>
+                    </div>
+                    <div class="feature-item">
+                        <h3>Improved Safety</h3>
+                        <p>Reduces the risk of injury to waste handlers by detecting sharp objects before manual sorting.</p>
+                    </div>
+                    <div class="feature-item">
+                        <h3>Increased Efficiency</h3>
+                        <p>Speeds up the waste segregation process, leading to higher recycling rates and reduced landfill waste.</p>
+                    </div>
+                     <div class="feature-item">
+                        <h3>User-Friendly Interface</h3>
+                        <p>Simple and intuitive interface for uploading images and receiving analysis results.</p>
+                    </div>
+                    <div class="feature-item">
+                        <h3>Data-Driven Insights</h3>
+                        <p>Provides valuable data and reports on waste composition to help optimize waste management strategies.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+
+    </main>
+
+    <footer class="footer">
+        <p>&copy; 2025 SortXpert. All rights reserved.</p>
+        <div class="footer-social">
+            <a href="#"><i class="fab fa-facebook-f"></i></a>
+            <a href="#"><i class="fab fa-twitter"></i></a>
+            <a href="#"><i class="fab fa-instagram"></i></a>
+        </div>
+    </footer>
+
+    <script>
+        const imageOptions = document.querySelectorAll('.image-option');
+        let currentIndex = 0;
+        const numImages = imageOptions.length;
+        let images = [];
+
+        window.onload = () => {
+            images[0] = document.getElementById("img1");
+            images[1] = document.getElementById("img2");
+            images[2] = document.getElementById("img3");
+            images[3] = document.getElementById("img4");
+
+
+            // Initial setup: Show the first two images
+            images[0].style.opacity = 1;
+            images[1].style.opacity = 1;
+
+            images.forEach(img => {
+                img.addEventListener('click', function() {
+                    rotateImages();
+                });
+            });
+        }
+        function rotateImages() {
+                // Remove hover effect
+                images[currentIndex].style.transform = 'scale(1)';
+                images[currentIndex].style.boxShadow = 'none';
+
+                // Hide the current image
+                images[currentIndex].style.opacity = 0;
+                images[currentIndex].style.zIndex = 1;
+
+                // Calculate the next index
+                currentIndex = (currentIndex + 1) % numImages;
+
+                // Show the next image
+                images[currentIndex].style.opacity = 1;
+                images[currentIndex].style.zIndex = 4;
+                images[currentIndex].style.transform = 'translateX(50px) translateY(30px) rotate(10deg)';
+
+
+                // Show the two background images with 50% visibility
+                let prevIndex1 = (currentIndex - 1 + numImages) % numImages;
+                let prevIndex2 = (currentIndex - 2 + numImages) % numImages;
+
+                images[prevIndex1].style.opacity = 1;
+                images[prevIndex1].style.zIndex = 2;
+                images[prevIndex1].style.transform = 'translateX(-50px) translateY(30px) rotate(-10deg)';
+                images[prevIndex2].style.opacity = 1;
+                images[prevIndex2].style.zIndex = 3;
+                images[prevIndex2].style.transform = 'translateX(-50px) translateY(30px) rotate(-10deg)';
+        }
+    </script>
+    <script src="https://kit.fontawesome.com/your-font-awesome-kit.js" crossorigin="anonymous"></script>
+</body>
+</html>

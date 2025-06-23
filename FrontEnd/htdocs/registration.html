@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SortXpert - Register</title>
+    <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 30px;
+            background: rgba(0, 0, 0, 0.7);
+            position: fixed;
+            width: 100%;
+            top: 0;
+            left: 0;
+            z-index: 1000;
+        }
+
+        .logo {
+            font-family: 'Great Vibes', cursive;
+            font-size: 2rem;
+            color: #00ffcc;
+            font-weight: bold;
+        }
+
+        .nav-links a {
+            text-decoration: none;
+            color: white;
+            font-size: 16px;
+            margin-left: 20px;
+            transition: 0.3s;
+        }
+
+        .nav-links a:hover {
+            color: #00ffcc;
+        }
+
+        body {
+            background: url('UIimage.jpg') no-repeat center center/cover;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            backdrop-filter: blur(8px);
+            padding-top: 80px;
+        }
+
+        .container {
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(20px);
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+            text-align: center;
+            width: 350px;
+            animation: fadeIn 1.5s ease-in-out;
+            transform: scale(0.9);
+            transition: transform 0.3s ease-in-out;
+        }
+
+        .container:hover {
+            transform: scale(1);
+        }
+
+        .container h2 {
+            color: #fff;
+            font-weight: 600;
+            margin-bottom: 20px;
+            background: linear-gradient(90deg, #041c17, #030b0d);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .input-box {
+            width: 100%;
+            margin-bottom: 15px;
+        }
+
+        .input-box input {
+            width: 100%;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.3);
+            color: #fff;
+            outline: none;
+            font-size: 14px;
+            transition: 0.3s;
+            border: 1px solid rgba(255, 255, 255, 0.5);
+        }
+
+        .register-btn {
+            width: 100%;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            background: linear-gradient(90deg, #083a30, #33ccff);
+            color: #fff;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .message {
+            margin-top: 10px;
+            font-weight: bold;
+        }
+
+        .success {
+            color: green;
+        }
+
+        .error {
+            color: red;
+        }
+    </style>
+</head>
+<body>
+
+    <header class="navbar">
+        <h1 class="logo">SortXpert</h1>
+        <nav class="nav-links">
+            <a href="homepage.html">Home</a>
+            <a href="/BackEnd/login.html">Login</a>
+            <a href="registration.html">Sign Up</a>
+            <a href="contact.html">Contact</a>
+        </nav>
+    </header>
+
+    <div class="container">
+        <h2>Register to SortXpert</h2>
+        <form id="registration-form" action="http://localhost:8000/register" method="POST">
+            <div class="input-box">
+                <input type="text" name="full_name" placeholder="Full Name" required>
+            </div>
+            <div class="input-box">
+                <input type="email" name="email" placeholder="Email" required>
+            </div>
+            <div class="input-box">
+                <input type="password" id="password" name="password" placeholder="Password" required oninput="checkPasswordMatch()">
+            </div>
+            <div class="input-box">
+                <input type="password" id="confirm_password" name="confirm_password" placeholder="Confirm Password" required oninput="checkPasswordMatch()">
+            </div>
+            <p id="passwordMatchMessage"></p>
+            <button type="submit" class="register-btn">Register</button>
+
+
+            <script>
+                document.addEventListener("DOMContentLoaded", function() {
+                    function checkPasswordMatch() {
+                        var password = document.getElementById("password").value;
+                        var confirmPassword = document.getElementById("confirm_password").value;
+                        var message = document.getElementById("passwordMatchMessage");
+
+                        if (password !== confirmPassword) {
+                            message.innerHTML = "Passwords do not match!";
+                            message.style.color = "red";
+                        } else {
+                            message.innerHTML = "";
+                        }
+                    }
+
+                    document.getElementById("registration-form").addEventListener("submit", async function(event) {
+                        event.preventDefault(); // Prevent default form submission
+
+                        const formData = new FormData(this);
+                        const data = Object.fromEntries(formData.entries());
+                                // Full Name Validation (Only letters and spaces allowed)
+                        if (!/^[A-Za-z\s]+$/.test(data.full_name)) {
+                            document.getElementById("message").innerText = "Full name must contain only letters!";
+                            document.getElementById("message").className = "message error";
+                            return;
+                        }
+
+                        // Email Validation (Proper email format)
+                        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(data.email)) {
+                            document.getElementById("message").innerText = "Enter a valid email address!";
+                            document.getElementById("message").className = "message error";
+                            return;
+                        }
+
+                        try {
+                            let response = await fetch("http://localhost:8000/register", {
+                                method: "POST",
+                                headers: {
+                                    "Content-Type": "application/json"
+                                },
+                                body: JSON.stringify(data)
+                            });
+
+                            let result = await response.json();
+
+                            if (response.ok) {
+                                document.getElementById("message").innerText = "Registration successful!";
+                                document.getElementById("message").className = "message success";
+
+                                setTimeout(() => {
+                                    window.location.href = "mainhomepage.html"; // Redirect after 2 seconds
+                                }, 2000);
+                            } else {
+                                document.getElementById("message").innerText = result.error || "Registration failed.";
+                                document.getElementById("message").className = "message error";
+                            }
+                        } catch (error) {
+                            console.error("Error:", error);
+                            document.getElementById("message").innerText = "Server error. Please try again.";
+                            document.getElementById("message").className = "message error";
+                        }
+                    });
+                });
+
+            </script>
+                
+        </form>
+        
+        <p class="message" id="message"></p>
+    </div>
+
+</body>
+</html>

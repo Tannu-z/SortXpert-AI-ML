@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Classification History</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f8f9fa; /* Light gray background */
+            color: #333;
+        }
+        h1 {
+            text-align: center;
+            color: #007bff; /* Primary blue color */
+            margin-bottom: 30px;
+        }
+        #history-container {
+            display: flex;
+            flex-direction: column; /* Arrange items vertically */
+            gap: 15px; /* Spacing between history items */
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); /* Subtle shadow */
+            max-width: 800px; /* Limit container width for better readability */
+            margin: 0 auto; /* Center the container */
+        }
+        .history-item {
+            border: 1px solid #e9ecef; /* Light gray border */
+            padding: 15px;
+            border-radius: 6px;
+            background-color: #fff;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05); /* Softer shadow for items */
+        }
+        .filename {
+            font-weight: bold;
+            margin-bottom: 8px;
+            color: #28a745; /* Success green color for filename */
+            overflow-wrap: break-word;
+            text-align: left;
+        }
+        .accuracy {
+            color: #17a2b8; /* Info teal color for accuracy */
+            margin-bottom: 5px;
+            text-align: left;
+        }
+        .timestamp {
+            color: #6c757d; /* Secondary gray color for timestamp */
+            font-size: 0.9em;
+            margin-top: 10px;
+            text-align: left;
+        }
+        .no-history {
+            text-align: center;
+            padding: 20px;
+            color: #6c757d;
+        }
+        .error {
+            color: #dc3545; /* Danger red color for error */
+            text-align: center;
+            padding: 20px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Classification History</h1>
+    <div id="history-container">
+        </div>
+
+    <p id="no-history" class="no-history" style="display:none;">No past results found.</p>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const historyContainer = document.getElementById('history-container');
+            const noHistoryMessage = document.getElementById('no-history');
+
+            fetch('/api/history', {
+                method: 'GET',
+                headers: {
+                    'Authorization': localStorage.getItem('authToken') || ''
+                }
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (data && data.length > 0) {
+                    historyContainer.innerHTML = '';
+                    data.forEach(item => {
+                        const historyItem = document.createElement('div');
+                        historyItem.classList.add('history-item');
+
+                        const filename = document.createElement('p');
+                        filename.classList.add('filename');
+                        filename.textContent = item.image_filename || 'No Filename';
+
+                        const accuracy = document.createElement('p');
+                        accuracy.classList.add('accuracy');
+                        accuracy.textContent = `Accuracy: ${item.accuracy ? parseFloat(item.accuracy).toFixed(2) + '%' : 'N/A'}`;
+
+                        const timestamp = document.createElement('p');
+                        timestamp.classList.add('timestamp');
+                        const date = new Date(item.timestamp);
+                        timestamp.textContent = `Date: ${date.toLocaleDateString()} ${date.toLocaleTimeString()}`;
+
+                        historyItem.appendChild(filename);
+                        historyItem.appendChild(accuracy);
+                        historyItem.appendChild(timestamp);
+                        historyContainer.appendChild(historyItem);
+                    });
+                } else {
+                    historyContainer.style.display = 'none';
+                    noHistoryMessage.style.display = 'block';
+                }
+            })
+            .catch(error => {
+                console.error('Error fetching history:', error);
+                historyContainer.innerHTML = '<p class="error">Failed to load history.</p>';
+            });
+        });
+    </script>
+</body>
+</html>

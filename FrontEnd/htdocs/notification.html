@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Notifications - SortXpert</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f4f4f4;
+            margin: 0;
+            padding: 0;
+            text-align: center;
+        }
+        .navbar {
+            background: #007BFF;
+            color: white;
+            padding: 15px;
+            font-size: 22px;
+            text-align: left;
+        }
+        .navbar a {
+            color: white;
+            text-decoration: none;
+            font-weight: bold;
+            padding: 10px;
+        }
+        .navbar a:hover {
+            text-decoration: underline;
+        }
+        #notificationSection {
+            width: 80%;
+            margin: 20px auto;
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+        }
+        ul {
+            list-style-type: none;
+            padding: 0;
+        }
+        li {
+            padding: 12px;
+            margin: 8px 0;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 18px;
+            transition: 0.3s;
+        }
+        .unread {
+            background: #ffdddd;
+            color: #d9534f;
+            font-weight: bold;
+        }
+        .read {
+            background: #ddffdd;
+            color: #5cb85c;
+        }
+        li:hover {
+            opacity: 0.8;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="navbar">
+        <a href="mainhomepage.html">SortXpert</a> | Notifications
+    </div>
+
+    <section id="notificationSection">
+        <ul id="notificationList">
+            No New Notification!!
+        </ul>
+    </section>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            fetch("/get-notifications") // Fetch notifications from backend
+                .then(response => response.json())
+                .then(data => {
+                    let notificationList = document.getElementById("notificationList");
+                    notificationList.innerHTML = "";  
+
+                    data.forEach(notification => {
+                        let li = document.createElement("li");
+                        li.textContent = notification.message;
+                        li.className = notification.read ? "read" : "unread";
+                        li.onclick = function () {
+                            markAsRead(notification.id);
+                        };
+                        notificationList.appendChild(li);
+                    });
+                })
+                .catch(error => console.error("Error fetching notifications:", error));
+        });
+
+        function markAsRead(notificationId) {
+            fetch("/mark-as-read", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ id: notificationId }),
+            }).then(() => {
+                location.reload(); // Refresh page to update the status
+            });
+        }
+    </script>
+
+</body>
+</html>
